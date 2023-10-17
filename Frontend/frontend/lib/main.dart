@@ -87,16 +87,10 @@ class _HomeState extends State<Home> {
 
 // GET Api Request
 Future<Post> fetchPost() async {
-  print('a');
   final uri = Uri.parse("http://127.0.0.1:8000/");
-  print('w');
   final response = await http.get(uri);
-  print('j');
-
-  print(response.statusCode);
 
   if (response.statusCode == 200) {
-    print('complete');
     return Post.fromJson(json.decode(response.body));
   } else {
     throw Exception("Failed to load post");

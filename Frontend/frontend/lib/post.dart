@@ -3,7 +3,8 @@ class Post {
 
   Post(this.productName);
 
+
   factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(json['items'][0]['product_name']);
-  }
+  return Post(json['items']['0']['product_name']);
+  }  
 }
