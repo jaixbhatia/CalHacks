@@ -1,5 +1,6 @@
 from enum import Enum
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 
@@ -9,6 +10,19 @@ df = pd.read_csv(file_path, sep='\t', encoding='utf-8')
 selected_columns = df[['product_name']]
 app = FastAPI()
 
+origins = [
+    "http://127.0.0.1:8000/",
+    "http://localhost:55955/",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    #allow_origins=origins,
+    allow_origins = ['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Category(Enum):
     TOOLS = 'tools'
