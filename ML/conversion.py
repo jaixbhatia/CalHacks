@@ -3,12 +3,12 @@ import json
 import openai
 
 # set API Key
-openai.api_key = os.environ['OPENAI_API_KEY']
+# openai.api_key = os.environ['OPENAI_API_KEY']
 
 # mapping
 sex_mapping = {
-    "Male": 1,
-    "Female": 0
+    "M": 1,
+    "F": 0
 }
 
 fitness_goal_mapping = {
@@ -27,15 +27,23 @@ activity_mapping = {
 }
 
 # inputs
-age = input("Enter your age: ")
+age = float(input("Enter your age: "))
 sex = input("Enter your sex (M/F): ")
 weight = float(input("Enter your weight (pounds): "))
 height = float(input("Enter your height (inches): "))
 fitness_goal = input("Enter your fitness goal: ")
 activity_goal = input("Describe your typical activity level: ")
 
+# # ==== DEFAULT VALUES ====
+# age = 18
+# sex = "M"
+# weight = 160
+# height = 71
+# fitness_goal = "Fat Loss"
+# activity_goal = "Sports"
+
 # adjust input values
-weight *= 0.45359237 # kg/lb factor
+weight_kg = weight * 0.45359237 # kg/lb factor
 height *= 2.54 # cm/in factor
 sex = sex_mapping[sex]
 fitness_goal = fitness_goal_mapping[fitness_goal]
@@ -59,7 +67,8 @@ else:
 # temporary calculation (use AI to figure how much they burnt from their activity description)
 cal_burnt = 250 * activity_goal
 
-cal_intake = cal_difference + cal_burnt
+cal_intake = int(cal_difference + cal_burnt + maintenance_cal)
+print(f"Cal Intake: {cal_intake}")
 
 #===========STEP 2: MACROS AMOUNT===========
 
@@ -68,13 +77,15 @@ cal_intake = cal_difference + cal_burnt
 protein_ratio = 1 + 0.2 * (fitness_goal-2)
 fat_ratio = 0.3 + 0.1 * (fitness_goal-2)
 
-protein = weight * protein_ratio
-fat = weight * fat_ratio
-carbs = weight - (protein + fat)
+protein_cal_g = 4
+carbs_cal_g = 4
+fat_cal_g = 9 
 
-# protein = 4 cal/g
-# carbs = 4 cal/g
-# fat = 9 cal/g
+protein = int(weight * protein_ratio)
+fat = int(weight * fat_ratio)
+carbs = int((cal_intake - (protein_cal_g * protein + fat_cal_g * fat)) / carbs_cal_g)
+print(f"Protein (g): {protein}\nCarbs (g): {carbs}\nFat (g): {fat}")
+
 
 #===========STEP 3: FOOD RECS ===========
 
@@ -84,17 +95,18 @@ carbs = weight - (protein + fat)
 
 # generate additional/similar nutrient food recommendations using AI
 
-prompt = f"Weight: ${weight}. Age: ${age}. Sex: ${sex}. Height: ${height}. Calories Intake per day: ${cal_intake}. Amount of protein (g) per day: ${protein}. Amount of fat (g) per day: ${fat}. Amount of carbs (g) per day: ${carbs}. Please generate a list of food recommendations that add up to the provided calorie intake of {cal_intake} based on the information of a certain individual above. "
+# prompt = f"Weight: {weight}. Age: {age}. Sex: {sex}. Height: {height}. Calories Intake per day: {cal_intake}. Amount of protein (g) per day: {protein}. Amount of fat (g) per day: {fat}. Amount of carbs (g) per day: {carbs}. Please generate a list of food recommendations that add up to the provided calorie intake of {cal_intake} based on the information of a certain individual above. "
+# print(prompt)
 
-completion = openai.ChatCompletion.create(
-  model="gpt-3.5-turbo",
-  messages=[
-    {"role": "system", "content": "You are a helpful assistant with extensive experience in nutrition and food science."},
-    {"role": "user", "content": prompt}
-  ]
-)
+# completion = openai.ChatCompletion.create(
+#   model="gpt-3.5-turbo",
+#   messages=[
+#     {"role": "system", "content": "You are a helpful assistant with extensive experience in nutrition and food science."},
+#     {"role": "user", "content": prompt}
+#   ]
+# )
 
-print(completion.choices[0].message.get("content"))
+# print(completion.choices[0].message.get("content"))
 
 
 #===========STEP 4: CLASSIFIER===========
